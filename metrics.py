@@ -88,12 +88,12 @@ def _has_duplicates(values: Collection[Any]):
 
 
 _STANDARD_METRIC_MAP = {
-    "hit": get_hit,
-    "mrr": get_reciprocal_rank,
     "ndcg": get_ndcg,
-    "map": get_average_precision,
-    "recall": get_recall,
-    "precision": get_precision,
+    # "hit": get_hit,
+    # "mrr": get_reciprocal_rank,
+    # "map": get_average_precision,
+    # "recall": get_recall,
+    # "precision": get_precision,
 }
 STANDARD_METRICS = sorted(_STANDARD_METRIC_MAP.keys())
 

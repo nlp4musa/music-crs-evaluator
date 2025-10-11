@@ -8,9 +8,18 @@ This repository provides standardized tools to evaluate music recommendation sys
 
 The evaluation framework:
 - Loads predictions from standardized JSON format
-- Computes retrieval metrics (Hit@k, MRR@k, nDCG@k, MAP@k, Recall@k, Precision@k)
+- Computes retrieval metrics (nDCG@k, k={1,10,20})
 - Evaluates across all 8 conversation turns
 - Provides macro-averaged results across sessions and turns
+
+## Baselines Results
+
+| Model | nDCG@1 | nDCG@10 | nDCG@20 |
+|-------|--------|---------|---------|
+| **random** | 0.0000 | 0.0001 | 0.0002 |
+| **popularity** | 0.0005 | 0.0018 | 0.0024 |
+| **llama1b_bert** | 0.0038 | 0.0142 | 0.0189 |
+| **llama1b_bm25** | **0.0139** | **0.1015** | **0.1181** |
 
 ## Setup
 
@@ -106,18 +115,31 @@ python lowerbound/popularity.py
 python eval_recsys.py --exp_name popularity
 ```
 
+for more baselines, please refer to:
+https://github.com/nlp4musa/music-crs-baselines
+
+
 ## Evaluation Metrics
 
-The framework computes the following metrics at k={1, 10, 20}:
+The framework computes **Normalized Discounted Cumulative Gain (nDCG)** at k={1, 10, 20}.
 
-| Metric | Description |
-|--------|-------------|
-| **Hit@k** | Binary indicator if any relevant item appears in top-k |
-| **MRR@k** | Mean Reciprocal Rank of the first relevant item in top-k |
-| **nDCG@k** | Normalized Discounted Cumulative Gain at k |
-| **MAP@k** | Mean Average Precision at k |
-| **Recall@k** | Proportion of relevant items found in top-k |
-| **Precision@k** | Proportion of top-k items that are relevant |
+**nDCG@k** measures ranking quality by comparing the predicted ranking against the ideal ranking:
+
+$$
+\text{nDCG@k} = \frac{\text{DCG@k}}{\text{IDCG@k}}
+$$
+
+where:
+
+$$
+\text{DCG@k} = \sum_{i=1}^{k} \frac{2^{rel_i} - 1}{\log_2(i + 1)}
+$$
+
+- **rel_i**: Relevance score at position i (1 if track is in ground truth, 0 otherwise)
+- **IDCG@k**: Ideal DCG@k (maximum possible DCG when items are perfectly ranked)
+
+Higher nDCG values indicate better ranking quality, with 1.0 being perfect.
+
 
 ### Output Format
 
@@ -125,24 +147,9 @@ Results are saved as JSON with macro-averaged metrics:
 
 ```json
 {
-  "hit@1": 0.0005,
-  "hit@10": 0.0035,
-  "hit@20": 0.0060,
-  "map@1": 0.0005,
-  "map@10": 0.0013,
-  "map@20": 0.0014,
-  "mrr@1": 0.0,
-  "mrr@10": 0.0,
-  "mrr@20": 0.0,
   "ndcg@1": 0.0005,
   "ndcg@10": 0.0018,
   "ndcg@20": 0.0024,
-  "precision@1": 0.0005,
-  "precision@10": 0.0004,
-  "precision@20": 0.0003,
-  "recall@1": 0.0005,
-  "recall@10": 0.0035,
-  "recall@20": 0.0060
 }
 ```
 

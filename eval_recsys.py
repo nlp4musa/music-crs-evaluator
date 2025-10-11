@@ -15,7 +15,7 @@ import pandas as pd
 import argparse
 
 parser = argparse.ArgumentParser(description="Evaluate music recommendation system predictions")
-parser.add_argument("--exp_name", type=str, default="random",
+parser.add_argument("--tid", type=str, default="random",
                     help="Name of the experiment (used to locate prediction files)")
 args = parser.parse_args()
 
@@ -63,7 +63,7 @@ def main() -> None:
     aggregates results, and saves the macro-averaged metrics to a JSON file.
     """
     results = []
-    predictions = json.load(open(f"exp/inference/{args.exp_name}.json", "r"))
+    predictions = json.load(open(f"exp/inference/{args.tid}.json", "r"))
     df_predictions = pd.DataFrame(predictions)
     db = load_dataset("talkpl-ai/TalkPlayData-2", split="test")
     for item in tqdm(db):
@@ -80,7 +80,7 @@ def main() -> None:
     df_turn_wise_results = df_results.drop(columns=["session_id"]).groupby("turn_number").agg("mean")
     df_macro_results = df_turn_wise_results.mean(axis=0).to_dict()
     os.makedirs(f"exp/eval_recsys", exist_ok=True)
-    with open(f"exp/eval_recsys/{args.exp_name}.json", "w") as f:
+    with open(f"exp/eval_recsys/{args.tid}.json", "w") as f:
         json.dump(df_macro_results, f, indent=2)
 
 if __name__ == "__main__":
