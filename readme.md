@@ -96,7 +96,7 @@ exp/inference/<your_method_name>.json
 ### 2. Run Evaluation
 
 ```bash
-python eval_recsys.py --exp_name <your_method_name>
+python eval_recsys.py --tid <your_method_name>
 ```
 
 This will:
@@ -112,11 +112,32 @@ This will:
 python lowerbound/popularity.py
 
 # Evaluate the baseline
-python eval_recsys.py --exp_name popularity
+python eval_recsys.py --tid popularity
+```
+
+```bash
+# Generate random baseline predictions
+python lowerbound/random.py
+
+# Evaluate the baseline
+python eval_recsys.py --tid random
 ```
 
 for more baselines, please refer to:
 https://github.com/nlp4musa/music-crs-baselines
+
+Then, you can move the results (`llama1b_bm25.json` and `llama1b_bert.json`) to `exp/inference/`, and execute:
+
+
+```bash
+# Evaluate the baseline
+python eval_recsys.py --tid llama1b_bm25
+```
+
+```bash
+# Evaluate the baseline
+python eval_recsys.py --tid llama1b_bert
+```
 
 
 ## Evaluation Metrics
