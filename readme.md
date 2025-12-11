@@ -229,6 +229,11 @@ Before submitting your predictions, ensure:
 - [ ] Track IDs are ordered by relevance
 - [ ] JSON is properly formatted (use `json.dump()` with `ensure_ascii=False`)
 
+## Submission
+
+🚀 Submission is now open
+Send your results to nlp4musa2026@gmail.com
+
 ## Troubleshooting
 
 ### Common Issues
