@@ -97,6 +97,16 @@ _STANDARD_METRIC_MAP = {
 }
 STANDARD_METRICS = sorted(_STANDARD_METRIC_MAP.keys())
 
+def compute_recsys_metrics(
+    preds,
+    gold,
+    k_values,
+    metrics=STANDARD_METRICS,
+) -> dict[str, float]:
+    """Alias for compute_metrics; used by eval_devset / eval_blindset."""
+    return compute_metrics(preds, gold, k_values, metrics)
+
+
 def compute_metrics(
     preds,
     gold,

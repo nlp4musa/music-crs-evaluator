@@ -8,14 +8,14 @@ from the TalkPlayData-2 dataset, computing various metrics across conversation t
 import os
 import json
 from typing import List, Tuple, Dict, Any
-from datasets import load_dataset
+from datasets import load_dataset, concatenate_datasets
+from metrics import compute_recsys_metrics
 from tqdm import tqdm
-from metrics import compute_metrics
 import pandas as pd
 import argparse
 
 parser = argparse.ArgumentParser(description="Evaluate music recommendation system predictions")
-parser.add_argument("--tid", type=str, default="random",
+parser.add_argument("--tid", type=str, default="llama1b_bm25",
                     help="Name of the experiment (used to locate prediction files)")
 args = parser.parse_args()
 
@@ -63,6 +63,9 @@ def main() -> None:
     aggregates results, and saves the macro-averaged metrics to a JSON file.
     """
     results = []
+    all_recommended_track_ids = set()
+    all_response_words = set()
+
     predictions = json.load(open(f"exp/inference/{args.tid}.json", "r"))
     df_predictions = pd.DataFrame(predictions)
     db = load_dataset("talkpl-ai/TalkPlayData-2", split="test")
@@ -70,17 +73,37 @@ def main() -> None:
         for target_turn_number in range(1, 9):
             gt_track_id, gt_response = parsing_groundtruth(item['conversations'], target_turn_number)
             recommend_track_ids, predicted_response = parsing_predictions(df_predictions, item['session_id'], target_turn_number)
-            metrics = compute_metrics(recommend_track_ids, [gt_track_id], [1, 10, 20])
+            recsys_metrics = compute_recsys_metrics(recommend_track_ids, [gt_track_id], [10])
             results.append({
                 "session_id": item['session_id'],
                 "turn_number": target_turn_number,
-                **metrics
+                **recsys_metrics
             })
+            # Accumulate data for diversity metrics
+            all_recommended_track_ids.update(recommend_track_ids)
+            if predicted_response:
+                all_response_words.update(predicted_response.lower().split())
+
+    # Catalog coverage: unique recommended tracks / total catalog size
+    target_splits = ["test_warm", "test_cold"]
+    catalog = load_dataset("talkpl-ai/TalkPlayData-2-Track-Metadata")
+    catalog = concatenate_datasets([catalog[split_type] for split_type in target_splits])
+    total_catalog_size = len(catalog)
+    catalog_coverage = len(all_recommended_track_ids) / total_catalog_size
+
     df_results = pd.DataFrame(results)
     df_turn_wise_results = df_results.drop(columns=["session_id"]).groupby("turn_number").agg("mean")
     df_macro_results = df_turn_wise_results.mean(axis=0).to_dict()
-    os.makedirs(f"exp/eval_recsys", exist_ok=True)
-    with open(f"exp/eval_recsys/{args.tid}.json", "w") as f:
+
+    # Append diversity metrics
+    df_macro_results["catalog_diversity"] = catalog_coverage
+    df_macro_results["lexical_diversity"] = len(all_response_words)
+
+    total_score = df_macro_results["ndcg@10"] * 0.5 + df_macro_results["catalog_diversity"] * 0.25 + df_macro_results["lexical_diversity"] * 0.25
+    df_macro_results["total_score"] = total_score
+
+    os.makedirs(f"exp/devset", exist_ok=True)
+    with open(f"exp/devset/{args.tid}.json", "w") as f:
         json.dump(df_macro_results, f, indent=2)
 
 if __name__ == "__main__":

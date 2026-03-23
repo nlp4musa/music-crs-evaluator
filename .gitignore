@@ -3,3 +3,7 @@ cache/
 __pycache__/
 *.egg-info/
 uv.lock
+.claude
+eval_prompt.txt
+eval_blindset.py
+exp/
