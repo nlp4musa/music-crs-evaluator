@@ -172,7 +172,7 @@ music-crs-evaluator/
 │   ├── __init__.py
 │   ├── metrics_recsys.py        # nDCG and other retrieval metrics
 │   ├── metrics_llm.py           # LLM-as-a-judge via Gemini
-│   └── eval_prompt.txt          # Judge rubric (instruction following, personalization, …)
+│   └── eval_prompt.txt          # Judge rubric
 ├── lowerbound/                  # Baseline implementations
 │   ├── popularity.py            # Popularity-based baseline
 │   └── random_sample.py         # Random sampling baseline
