@@ -49,7 +49,7 @@ pip install -r requirments.txt
 
 **⚠️ IMPORTANT:** Participants must strictly follow this JSON format for their predictions.
 
-Your inference results must be saved as a JSON file in `exp/inference/<your_method_name>.json` with the following structure:
+Your inference results must be saved as a JSON file under `exp/inference/<eval_dataset>/<tid>.json` (e.g. `exp/inference/devset/llama1b_bert_devset.json`) with the following structure:
 
 ```json
 [
@@ -58,9 +58,7 @@ Your inference results must be saved as a JSON file in `exp/inference/<your_meth
     "user_id": "69137",
     "turn_number": 1,
     "predicted_track_ids": [
-      "60a0Rd6pjrkxjPbaKzXjfq",
-      "2nLtzopw4rPReszdYBJU6h",
-      "5UWwZ5lm5PKu6eKsHAGxOk",
+      "715f8aff-7c99-46b8-8f9d-6d1aa1ae0372", "73562c63-02e3-4278-baf3-aeb3252f8b33", "4302b6cf-afe4-45d9-ab72-bd477086d838", "f20c5819-a312-4a6d-9ad1-46deccb4ff2f",
       ...
     ],
     "predicted_response": ""
@@ -76,7 +74,7 @@ Your inference results must be saved as a JSON file in `exp/inference/<your_meth
 | `session_id` | `string` | Unique identifier for the conversation session (format: `{user_id}__{date}`) |
 | `user_id` | `string` | Unique identifier for the user |
 | `turn_number` | `int` | Turn number in the conversation (1-8) |
-| `predicted_track_ids` | `list[string]` | **Ordered list** of predicted Spotify track IDs (typically 20 tracks) |
+| `predicted_track_ids` | `list[string]` | **Ordered list** of predicted track unique identifiers (typically 20 tracks) |
 | `predicted_response` | `string` | Text response (optional, can be empty string) |
 
 ### Important Notes
@@ -92,20 +90,20 @@ Your inference results must be saved as a JSON file in `exp/inference/<your_meth
 
 Create your inference file following the format above and save it to:
 ```
-exp/inference/<your_method_name>.json
+exp/inference/blindset_A/llama1b_bert_blindset_A_all.json
 ```
 
 ### 2. Run Evaluation
 
 ```bash
-python eval_devset.py --exp_name <your_method_name>
+python evaluate_devset.py --eval_dataset blindset_A --tid llama1b_bert_blindset_A_all
 ```
 
 This will:
-- Load your predictions from `exp/inference/<your_method_name>.json`
-- Load ground truth from the TalkPlayData-2 test set
+- Load your predictions from `exp/inference/blindset_A/llama1b_bert_blindset_A_all.json`
+- Load ground truth for the selected evaluation dataset
 - Compute metrics for each session and turn
-- Save macro-averaged results to `exp/devset/<your_method_name>.json`
+- Save macro-averaged results to `exp/scores/blindset_A/llama1b_bert_blindset_A_all.json`
 
 ### Example: Running Baseline
 
@@ -188,19 +186,6 @@ music-crs-evaluator/
 
 Two baseline methods are provided for reference:
 
-
-### Random Baseline
-Recommends 20 randomly sampled tracks:
-```bash
-python lowerbound/random_sample.py
-```
-
-### Popularity Baseline
-Recommends the 20 most popular tracks from the training set:
-```bash
-python lowerbound/popularity.py
-```
-
 ## Dataset
 
 All datasets are part of the [TalkPlay Data Challenge](https://huggingface.co/collections/talkpl-ai/talkplay-data-challenge) collection on Hugging Face.
@@ -219,10 +204,10 @@ The dataset contains multi-turn conversations (~8 turns each) where the system m
 
 Before submitting your predictions, ensure:
 
-- [ ] JSON file is saved in `exp/inference/<method_name>.json`
+- [ ] JSON file is saved in `exp/inference/blindset_A/llama1b_bert_blindset_A_all.json`
 - [ ] All required fields are present (`session_id`, `user_id`, `turn_number`, `predicted_track_ids`, `predicted_response`)
 - [ ] Predictions cover all sessions and turns (1-8) in the test set
-- [ ] Track IDs are valid Spotify IDs from the dataset
+- [ ] Track IDs are valid unique identifiers from the dataset
 - [ ] No duplicate track IDs within each prediction
 - [ ] Track IDs are ordered by relevance
 - [ ] JSON is properly formatted (use `json.dump()` with `ensure_ascii=False`)
