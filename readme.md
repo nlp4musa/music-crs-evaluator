@@ -58,7 +58,10 @@ Your inference results must be saved as a JSON file under `exp/inference/<eval_d
     "user_id": "69137",
     "turn_number": 1,
     "predicted_track_ids": [
-      "715f8aff-7c99-46b8-8f9d-6d1aa1ae0372", "73562c63-02e3-4278-baf3-aeb3252f8b33", "4302b6cf-afe4-45d9-ab72-bd477086d838", "f20c5819-a312-4a6d-9ad1-46deccb4ff2f",
+      "715f8aff-7c99-46b8-8f9d-6d1aa1ae0372",
+      "73562c63-02e3-4278-baf3-aeb3252f8b33",
+      "4302b6cf-afe4-45d9-ab72-bd477086d838",
+      "f20c5819-a312-4a6d-9ad1-46deccb4ff2f",
       ...
     ],
     "predicted_response": ""
@@ -90,20 +93,20 @@ Your inference results must be saved as a JSON file under `exp/inference/<eval_d
 
 Create your inference file following the format above and save it to:
 ```
-exp/inference/blindset_A/llama1b_bert_blindset_A_all.json
+exp/inference/devset/llama1b_bert_devset.json
 ```
 
 ### 2. Run Evaluation
 
 ```bash
-python evaluate_devset.py --eval_dataset blindset_A --tid llama1b_bert_blindset_A_all
+python evaluate_devset.py --eval_dataset devset --tid llama1b_bert_devset
 ```
 
 This will:
-- Load your predictions from `exp/inference/blindset_A/llama1b_bert_blindset_A_all.json`
+- Load your predictions from `exp/inference/devset/llama1b_bert_devset.json`
 - Load ground truth for the selected evaluation dataset
 - Compute metrics for each session and turn
-- Save macro-averaged results to `exp/scores/blindset_A/llama1b_bert_blindset_A_all.json`
+- Save macro-averaged results to `exp/scores/devset/llama1b_bert_devset.json`
 
 ### Example: Running Baseline
 
@@ -204,7 +207,7 @@ The dataset contains multi-turn conversations (~8 turns each) where the system m
 
 Before submitting your predictions, ensure:
 
-- [ ] JSON file is saved in `exp/inference/blindset_A/llama1b_bert_blindset_A_all.json`
+- [ ] JSON file is saved in `exp/inference/devset/llama1b_bert_devset.json`
 - [ ] All required fields are present (`session_id`, `user_id`, `turn_number`, `predicted_track_ids`, `predicted_response`)
 - [ ] Predictions cover all sessions and turns (1-8) in the test set
 - [ ] Track IDs are valid unique identifiers from the dataset
