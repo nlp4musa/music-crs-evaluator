@@ -4,9 +4,9 @@ Official evaluation framework for the **Conversational Music Recommendation Syst
 
 This repository provides standardized tools to evaluate music recommendation systems on the **TalkPlay Data Challenge** datasets. Participants must follow the strict inference JSON format specified below to ensure their submissions can be properly evaluated.
 
-**ACM RecSys Website**: [https://www.recsyschallenge.com/](https://www.recsyschallenge.com/)
-**Challenge Website**: [https://nlp4musa.github.io/music-crs-challenge/](https://nlp4musa.github.io/music-crs-challenge/)
-**Challenge datasets**: [talkpl-ai/talkplay-data-challenge](https://huggingface.co/collections/talkpl-ai/talkplay-data-challenge)
+- **ACM RecSys Website**: [https://www.recsyschallenge.com/](https://www.recsyschallenge.com/)
+- **Challenge Website**: [https://nlp4musa.github.io/music-crs-challenge/](https://nlp4musa.github.io/music-crs-challenge/)
+- **Challenge datasets**: [talkpl-ai/talkplay-data-challenge](https://huggingface.co/collections/talkpl-ai/talkplay-data-challenge)
 
 ## Timeline
 
@@ -45,6 +45,51 @@ uv venv .venv --python=3.10
 source .venv/bin/activate
 uv pip install -r requirments.txt
 ```
+
+## Quick Start
+
+> **Note — Blind Set Evaluation:**
+
+> Blind set (Blind A / Blind B) evaluation is **not supported** in this repository.
+
+> Submit your predictions to the official leaderboard on **[CodaBench](https://www.codabench.org/)** for blind set scoring.
+
+> Full evaluation on blind sets includes additional metrics that are kept server-side to prevent leakage.
+
+> This repository currently only supports evaluation on the development dataset. For blind set evaluation, please refer to the official baseline code or submit your predictions to the leaderboard as described above.
+
+### 1. Prepare Ground Truth
+
+Before running evaluation, generate the ground truth file for the development set:
+
+```bash
+python make_ground_truth.py
+```
+
+This saves ground truth to `exp/ground_truth/talkpl_ai_talkplaydata_challenge_dataset/test.json`.
+
+### 2. Place Your Predictions
+
+Save your inference file to:
+```
+exp/inference/devset/<tid>.json
+```
+
+### 3. Run Evaluation
+
+```bash
+python evaluate_devset.py --eval_dataset devset --tid <tid>
+```
+
+This will:
+- Load predictions from `exp/inference/devset/<tid>.json`
+- Load ground truth for the development set
+- Compute nDCG@{1,10,20} per session and turn
+- Compute catalog and lexical diversity
+- Save macro-averaged results to `exp/scores/devset/<tid>.json`
+
+For more baselines, see: [nlp4musa/music-crs-baselines](https://github.com/nlp4musa/music-crs-baselines)
+
 
 ## Inference JSON Format
 
@@ -85,46 +130,6 @@ Your inference results must be saved as a JSON file under `exp/inference/<eval_d
 - **No duplicates:** Each `predicted_track_ids` list must contain unique track IDs
 - **Order matters:** Rank track IDs by relevance (most relevant first)
 - **Valid track IDs:** IDs must match those in [TalkPlayData-Challenge-Track-Metadata](https://huggingface.co/datasets/talkpl-ai/TalkPlayData-Challenge-Track-Metadata)
-
-## Quick Start
-
-> **Note — Blind Set Evaluation:**
-> Blind set (Blind A / Blind B) evaluation is **not supported** in this repository.
-> Submit your predictions to the official leaderboard on **[CodaBench](https://www.codabench.org/)** for blind set scoring.
-> Full evaluation on blind sets includes additional metrics that are kept server-side to prevent leakage.
-> This repository currently only supports evaluation on the development dataset. For blind set evaluation, please refer to the official baseline code or submit your predictions to the leaderboard as described above.
-
-### 1. Prepare Ground Truth
-
-Before running evaluation, generate the ground truth file for the development set:
-
-```bash
-python make_ground_truth.py --dataset_name talkpl-ai/TalkPlayData-Challenge-Dataset --split test
-```
-
-This saves ground truth to `exp/ground_truth/talkpl_ai_talkplaydata_challenge_dataset/test.json`.
-
-### 2. Place Your Predictions
-
-Save your inference file to:
-```
-exp/inference/devset/<tid>.json
-```
-
-### 3. Run Evaluation
-
-```bash
-python evaluate_devset.py --eval_dataset devset --tid <tid>
-```
-
-This will:
-- Load predictions from `exp/inference/devset/<tid>.json`
-- Load ground truth for the development set
-- Compute nDCG@{1,10,20} per session and turn
-- Compute catalog and lexical diversity
-- Save macro-averaged results to `exp/scores/devset/<tid>.json`
-
-For more baselines, see: [nlp4musa/music-crs-baselines](https://github.com/nlp4musa/music-crs-baselines)
 
 ## Evaluation Metrics
 
